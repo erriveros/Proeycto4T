@@ -101,8 +101,8 @@ while True:
         user_info = update_info['user_info']
         message_id = update_info['message_id']
         print(text)
-        #if(text == "button"):
-        #    send_inline(chat)
+        if(text == "button"):
+            send_inline(chat)
         send_message("MENSAGE HARCODIADO", chat)
 
     time.sleep(0.5)
