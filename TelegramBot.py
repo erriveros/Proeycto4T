@@ -3,11 +3,23 @@ import time
 import telebot
 import urllib
 import json
+import telepot
+from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
 TOKEN = "802624766:AAGFeusIY0pHAjasyJiheR14QD6mjDsIclE"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 bot = telebot.TeleBot(TOKEN)
+
+def send_reply_keyboard(chat_id):
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard_btns = []
+    keyboard_btns.append(telebot.types.KeyboardButton("hola"))
+    keyboard_btns.append(telebot.types.KeyboardButton("chao"))
+    for btn in keyboard_btns:
+        keyboard.add(btn)
+    bot.send_message(chat_id, 'Hola', reply_markup=keyboard)
+
 
 
 #PARA MANDAR BOTONES
@@ -103,7 +115,10 @@ while True:
         print(text)
         if(text == "button"):
             send_inline(chat)
-        send_message("MENSAGE HARCODIADO", chat)
+
+        else:
+            #send_message("MENSAGE HARCODIADO", chat)
+            send_reply_keyboard(chat)
 
     time.sleep(0.5)
 
