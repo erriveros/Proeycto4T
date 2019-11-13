@@ -10,5 +10,7 @@ import scrapy
 
 class UandesscraperItem(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
+    news = scrapy.Field()
+    href = scrapy.Field()
+    course = scrapy.Field()
     pass
