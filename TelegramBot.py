@@ -15,7 +15,8 @@ bot = telebot.TeleBot(TOKEN)
 def scrap_instagram(account_name):
     print("scraping instagram account...")
     args = "--account "+ account_name
-    terminal_command = r"python3 Instagram\ scrapper/main.py " + args
+    #terminal_command = r"python3 Instagram\ scrapper/main.py " + args
+    terminal_command = r"python InstagramScrapper/main.py " + args
     os.system(terminal_command)
 
 def send_reply_keyboard(chat_id, btns, output):
