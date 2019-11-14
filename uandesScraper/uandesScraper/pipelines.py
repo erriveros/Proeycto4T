@@ -20,17 +20,38 @@ class UandesscraperPipeline(object):
     def create_table(self):
         self.curr.execute("""DROP TABLE IF EXISTS unread_saf_tb""")
         self.curr.execute("""create table unread_saf_tb(
-                        news text,
-                        href text)""")
+                        course text,
+                        date text,
+                        content text,
+                        title text)""")
+
+        self.curr.execute("""DROP TABLE IF EXISTS open_activities_saf_tb""")
+        self.curr.execute("""create table open_activities_saf_tb(
+                                course text,
+                                date text,
+                                title text)""")
+
+
+
     def process_item(self, item, spider):
         self.store_db(item)
-        print("Pipeline :" + item['news'][0])
+        print("Pipeline :" + item['course'][0])
         return item
 
     def store_db(self, item):
-        self.curr.execute("""insert into unread_saf_tb values (?,?)""", (
-            item['news'][0],
-            item['href'][0]
-        ))
+        if item['table'] == 'unread':
+            self.curr.execute("""insert into unread_saf_tb values (?,?,?,?)""", (
+                item['course'][0],
+                item['newsDate'][0],
+                item['newsContent'],
+                item['newsTitle'][0]
+            ))
+
+        elif item['table'] == 'open_activities':
+            self.curr.execute("""insert into open_activities_saf_tb values (?,?,?)""", (
+                item['course'],
+                item['openActivityTitle'],
+                item['openActivityDate']
+            ))
         self.conn.commit()
 
