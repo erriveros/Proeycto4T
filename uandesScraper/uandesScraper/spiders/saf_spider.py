@@ -18,6 +18,8 @@ class SadSpider(scrapy.Spider):
         self.items = UandesscraperItem()
         for n in self.scrape_open_activities(response):
             yield n
+        for i in self.scrape_courses(response):
+            yield i
         self.base = 'https://saf.uandes.cl'
         self.baseHref = ['/ing/vle/news.html/491', '/ing/vle/news.html/522', '/ing/vle/news.html/483']
 
@@ -61,3 +63,12 @@ class SadSpider(scrapy.Spider):
             yield self.items
 
         return 1
+
+    def scrape_courses(self, response):
+        current_semester = response.css('div#current_semester')
+        courses = current_semester.css('div.col-lg-12::text').extract()
+        for course in courses:
+            self.items['course'] = course
+            self.items['table'] = 'current_semester'
+            yield self.items
+

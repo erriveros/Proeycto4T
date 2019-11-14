@@ -22,4 +22,5 @@ class UandesscraperItem(scrapy.Item):
     openActivityDate = scrapy.Field()
 
 
+
     pass

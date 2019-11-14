@@ -31,6 +31,10 @@ class UandesscraperPipeline(object):
                                 date text,
                                 title text)""")
 
+        self.curr.execute("""DROP TABLE IF EXISTS current_semester_saf_tb""")
+        self.curr.execute("""create table current_semester_saf_tb(
+                                        course text)""")
+
 
 
     def process_item(self, item, spider):
@@ -52,6 +56,11 @@ class UandesscraperPipeline(object):
                 item['course'],
                 item['openActivityTitle'],
                 item['openActivityDate']
+            ))
+
+        elif item['table'] == 'current_semester':
+            self.curr.execute("""insert into current_semester_saf_tb values (?)""", (
+                item['course'],
             ))
         self.conn.commit()
 
