@@ -109,7 +109,7 @@ def get_last_chat_id_and_text(updates):
     return (text, chat_id)
 
 
-def main_menu(chat,text,loggedInstagram, loggedSaf, loggedGmail):
+def main_menu(chat,loggedInstagram, loggedSaf, loggedGmail, current):
     if loggedGmail or loggedInstagram or loggedSaf:
         btns = []
         #send_message("Elija alguna opcion a la que quiera ver informacion", chat)
@@ -121,6 +121,14 @@ def main_menu(chat,text,loggedInstagram, loggedSaf, loggedGmail):
             btns.append('Gmail')
         send_reply_keyboard(chat, btns, "Elija alguna opcion a la que quiera ver informacion")
         send_inline(chat, ['Login'], 'Para iniciar sesion')
+    else:
+        send_message("Debe estar inicializado sesion con algun servicio para empezar", chat)
+        current = 'login'
+        send_reply_keyboard(chat, ["Instagram", "Saf", "Gmail"], "¿Qué servicio quieres iniciar sesion?")
+        #send_inline(chat, ["Volver a Menu"], "Para volver al menu")
+
+    return current
+
 
 
 loggedInstagram = False
@@ -149,8 +157,10 @@ while True:
         print(update_info)
         if text == "button":
             send_inline(chat)
-        if current == 'main':
-            main_menu(chat,text, loggedInstagram, loggedSaf,loggedGmail)
+        if current == 'main' or text == "Volver a Menu":
+            current = 'main'
+            print('ewew')
+            current = main_menu(chat, loggedInstagram, loggedSaf, loggedGmail, current)
 
         elif text == "Instagram":
             bot.send_message(chat, "Ingresa el nombre de la cuenta de Instagram que deseas seguir.")
@@ -196,8 +206,8 @@ while True:
             # bot.send_message(chat, "Tu email es: " + gmailUser + " y tu contraseña es: " + gmailPass)
             gmailUserBool = False
             gmailPassBool = False
-        else:
+
             # send_message("MENSAGE HARCODIADO", chat)
-            send_reply_keyboard(chat, ["Instagram", "Saf", "Gmail"], "¿Qué servicio quieres usar?")
+        send_inline(chat, ["Volver a Menu"], "Para volver al menu")
 
     time.sleep(0.5)
