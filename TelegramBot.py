@@ -114,11 +114,11 @@ def main_menu(chat,loggedInstagram, loggedSaf, loggedGmail, current):
         btns = []
         #send_message("Elija alguna opcion a la que quiera ver informacion", chat)
         if loggedSaf:
-            btns.append('Saf')
+            btns.append('@Saf')
         if loggedInstagram:
-            btns.append('Instagram')
+            btns.append('@Instagram')
         if loggedGmail:
-            btns.append('Gmail')
+            btns.append('@Gmail')
         send_reply_keyboard(chat, btns, "Elija alguna opcion a la que quiera ver informacion")
         send_inline(chat, ['Login'], 'Para iniciar sesion')
     else:
@@ -157,10 +157,15 @@ while True:
         print(update_info)
         if text == "button":
             send_inline(chat)
-        if current == 'main' or text == "Volver a Menu":
+        if text == '@Saf':
+            c = ['Arquitectura de Computadores 201920', 'Introducción a la Ingeniería de Software 201920',
+                 'Proyecto Software 201920']
+            send_inline(chat, c, "eliga un curso para ver informacion")
+        elif current == 'main' or text == "Volver a Menu":
             current = 'main'
             print('ewew')
             current = main_menu(chat, loggedInstagram, loggedSaf, loggedGmail, current)
+
 
         elif text == "Instagram":
             bot.send_message(chat, "Ingresa el nombre de la cuenta de Instagram que deseas seguir.")
