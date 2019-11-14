@@ -30,14 +30,12 @@ def send_reply_keyboard(chat_id, btns, output):
 
 
 # PARA MANDAR BOTONES
-def send_inline(chat_id):
+def send_inline(chat_id, btns, message):
     keyboard = telebot.types.InlineKeyboardMarkup()
-    callback_button = telebot.types.InlineKeyboardButton(text="Yo", callback_data="Yo")
-    callback_button1 = telebot.types.InlineKeyboardButton(text="No", callback_data="No")
-    callback_button2 = telebot.types.InlineKeyboardButton(text="SI", callback_data="SI")
-
-    keyboard.add(callback_button, callback_button1, callback_button2)
-    bot.send_message(chat_id, 'Quien pago la cuota', reply_markup=keyboard)
+    for btn in btns:
+        callback_button = telebot.types.InlineKeyboardButton(text=btn, callback_data=btn)
+        keyboard.add(callback_button)
+    bot.send_message(chat_id, message, reply_markup=keyboard)
 
 
 def get_last_chat_id_info(updates):
@@ -111,6 +109,26 @@ def get_last_chat_id_and_text(updates):
     return (text, chat_id)
 
 
+def main_menu(chat,text,loggedInstagram, loggedSaf, loggedGmail):
+    if loggedGmail or loggedInstagram or loggedSaf:
+        btns = []
+        #send_message("Elija alguna opcion a la que quiera ver informacion", chat)
+        if loggedSaf:
+            btns.append('Saf')
+        if loggedInstagram:
+            btns.append('Instagram')
+        if loggedGmail:
+            btns.append('Gmail')
+        send_reply_keyboard(chat, btns, "Elija alguna opcion a la que quiera ver informacion")
+        send_inline(chat, ['Login'], 'Para iniciar sesion')
+
+
+loggedInstagram = False
+loggedSaf = False
+loggedGmail = False
+
+current="main"
+
 instagramAccountBool = False
 safUserBool = False
 safPassBool = False
@@ -131,6 +149,8 @@ while True:
         print(update_info)
         if text == "button":
             send_inline(chat)
+        if current == 'main':
+            main_menu(chat,text, loggedInstagram, loggedSaf,loggedGmail)
 
         elif text == "Instagram":
             bot.send_message(chat, "Ingresa el nombre de la cuenta de Instagram que deseas seguir.")
@@ -143,6 +163,7 @@ while True:
             bot.send_message(chat, "Actualización completa, ahora puedes activar notificaciones")
             # bot.send_message(chat, "Tu usuario de Instagram es: " + text)
             instagramAccountBool = False
+            loggedInstagram = True
 
         elif text == "Saf":
             bot.send_message(chat, "Ingresa el email de tu cuenta de Saf.")
@@ -155,8 +176,12 @@ while True:
             safPass = text
             # Aqui se accede a Saf, el email es la variable safUser y la contraseña es la variable safPass
             # bot.send_message(chat, "Tu email es: " + safUser + " y tu contraseña es: " + safPass)
+            bot.send_message(chat, "Revisando cuenta para estar al tanto de las ultimas noticias.")
+            time.sleep(3)
+            bot.send_message(chat, "Saf inicializado!")
             safUserBool = False
             safPassBool = False
+            loggedSaf = True
 
         elif text == "Gmail":
             bot.send_message(chat, "Ingresa el email de tu cuenta de Gmail.")
