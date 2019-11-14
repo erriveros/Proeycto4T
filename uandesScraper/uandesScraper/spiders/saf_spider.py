@@ -24,15 +24,15 @@ class SadSpider(scrapy.Spider):
         self.baseHref = ['/ing/vle/news.html/491', '/ing/vle/news.html/522', '/ing/vle/news.html/483']
 
         unread_news = response.css('section#News').css('a.list-group-item')
-        # for new in unread_news:
-        #     news = new.css('div.label-news-activity-theme').css("strong::text").extract()
-        #     href = new.xpath("@href").extract()
-        #     self.items['news'] = news
-        #     self.items['href'] = href
-        #     self.items['scrape'] = 1
-        #     yield self.items
-        for i in self.baseHref:
-            yield response.follow(self.base + i, callback=self.scrape_news)
+        for new in unread_news:
+            news = new.css('div.label-news-activity-theme').css("strong::text").extract()
+            href = new.xpath("@href").extract()
+            self.items['news'] = news
+            self.items['href'] = href
+            self.items['scrape'] = 1
+            yield self.items
+        # for i in self.baseHref:
+        #     yield response.follow(self.base + i, callback=self.scrape_news)
 
     def scrape_news(self, response):
         course = response.css('div.span12').css('a::text').extract()
@@ -61,8 +61,6 @@ class SadSpider(scrapy.Spider):
             self.items['openActivityDate'] = dates[i]
             self.items['table'] = 'open_activities'
             yield self.items
-
-        return 1
 
     def scrape_courses(self, response):
         current_semester = response.css('div#current_semester')
