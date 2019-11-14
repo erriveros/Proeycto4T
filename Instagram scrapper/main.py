@@ -1,5 +1,5 @@
 """
-install in venv pip3 PILLOW and pytesseract then
+install in venv pip3 PILLOW and pytesseract and instagram-scraper then
 to use tesseract in linux install the binary:
 sudo apt update
 sudo apt install tesseract-ocr
