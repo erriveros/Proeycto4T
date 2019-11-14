@@ -11,26 +11,28 @@ URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 bot = telebot.TeleBot(TOKEN)
 
-def send_reply_keyboard(chat_id):
+
+def send_reply_keyboard(chat_id, btns, output):
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     keyboard_btns = []
-    keyboard_btns.append(telebot.types.KeyboardButton("hola"))
-    keyboard_btns.append(telebot.types.KeyboardButton("chao"))
+    for btn in btns:
+        keyboard_btns.append(telebot.types.KeyboardButton(btn))
     for btn in keyboard_btns:
         keyboard.add(btn)
-    bot.send_message(chat_id, 'Hola', reply_markup=keyboard)
+    if output != "":
+        bot.send_message(chat_id, output, reply_markup=keyboard)
 
 
-
-#PARA MANDAR BOTONES
+# PARA MANDAR BOTONES
 def send_inline(chat_id):
     keyboard = telebot.types.InlineKeyboardMarkup()
     callback_button = telebot.types.InlineKeyboardButton(text="Yo", callback_data="Yo")
     callback_button1 = telebot.types.InlineKeyboardButton(text="No", callback_data="No")
     callback_button2 = telebot.types.InlineKeyboardButton(text="SI", callback_data="SI")
 
-    keyboard.add(callback_button,callback_button1,callback_button2)
+    keyboard.add(callback_button, callback_button1, callback_button2)
     bot.send_message(chat_id, 'Quien pago la cuota', reply_markup=keyboard)
+
 
 def get_last_chat_id_info(updates):
     num_updates = len(updates["result"])
@@ -59,6 +61,7 @@ def get_last_chat_id_info(updates):
 
         return {'text': text, 'chat_id': chat_id, 'user_info': user_info, 'message_id': message_id}
 
+
 def send_message(text, chat_id):
     text = urllib.parse.quote_plus(text)
     url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
@@ -69,6 +72,7 @@ def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
     return content
+
 
 def get_json_from_url(url):
     content = get_url(url)
@@ -101,6 +105,11 @@ def get_last_chat_id_and_text(updates):
     return (text, chat_id)
 
 
+instagramUserBool = False
+safUserBool = False
+safPassBool = False
+gmailUserBool = False
+gmailPassBool = False
 last_update_id = None
 print("chat bot running...")
 while True:
@@ -113,12 +122,48 @@ while True:
         user_info = update_info['user_info']
         message_id = update_info['message_id']
         print(text)
-        if(text == "button"):
+        print(update_info)
+        if text == "button":
             send_inline(chat)
 
+        elif text == "Instagram":
+            bot.send_message(chat, "Ingresa el nombre de tu cuenta de instagram.")
+            instagramUserBool = True
+        elif instagramUserBool:
+            instagramUser = text
+            # Aqui se accede a Instagram, el nombre de la cuenta de usuario de Instagram es la variable instagramUser
+            # bot.send_message(chat, "Tu usuario de Instagram es: " + text)
+            instagramUserBool = False
+
+        elif text == "Saf":
+            bot.send_message(chat, "Ingresa el email de tu cuenta de Saf.")
+            safUserBool = True
+        elif safUserBool and safPassBool is False:
+            bot.send_message(chat, "Ingresa la contraseña de tu cuenta de Saf.")
+            safUser = text
+            safPassBool = True
+        elif safUserBool and safPassBool:
+            safPass = text
+            # Aqui se accede a Saf, el email es la variable safUser y la contraseña es la variable safPass
+            # bot.send_message(chat, "Tu email es: " + safUser + " y tu contraseña es: " + safPass)
+            safUserBool = False
+            safPassBool = False
+
+        elif text == "Gmail":
+            bot.send_message(chat, "Ingresa el email de tu cuenta de Gmail.")
+            gmailUserBool = True
+        elif gmailUserBool and gmailPassBool is False:
+            bot.send_message(chat, "Ingresa la contraseña de tu cuenta de Gmail.")
+            gmailUser = text
+            gmailPassBool = True
+        elif gmailUserBool and gmailPassBool:
+            gmailPass = text
+            # Aqui se accede a Gmail, el email es la variable gmailUser y la contraseña es la variable gmailPass
+            # bot.send_message(chat, "Tu email es: " + gmailUser + " y tu contraseña es: " + gmailPass)
+            gmailUserBool = False
+            gmailPassBool = False
         else:
-            #send_message("MENSAGE HARCODIADO", chat)
-            send_reply_keyboard(chat)
+            # send_message("MENSAGE HARCODIADO", chat)
+            send_reply_keyboard(chat, ["Instagram", "Saf", "Gmail"], "¿Qué servicio quieres usar?")
 
     time.sleep(0.5)
-
