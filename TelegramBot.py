@@ -4,6 +4,7 @@ import telebot
 import urllib
 import json
 import telepot
+import os
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
 TOKEN = "802624766:AAGFeusIY0pHAjasyJiheR14QD6mjDsIclE"
@@ -11,6 +12,11 @@ URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 bot = telebot.TeleBot(TOKEN)
 
+def scrap_instagram(account_name):
+    print("scraping instagram account...")
+    args = "--account "+ account_name
+    terminal_command = r"python3 Instagram\ scrapper/main.py " + args
+    os.system(terminal_command)
 
 def send_reply_keyboard(chat_id, btns, output):
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
@@ -105,7 +111,7 @@ def get_last_chat_id_and_text(updates):
     return (text, chat_id)
 
 
-instagramUserBool = False
+instagramAccountBool = False
 safUserBool = False
 safPassBool = False
 gmailUserBool = False
@@ -127,13 +133,16 @@ while True:
             send_inline(chat)
 
         elif text == "Instagram":
-            bot.send_message(chat, "Ingresa el nombre de tu cuenta de instagram.")
-            instagramUserBool = True
-        elif instagramUserBool:
-            instagramUser = text
+            bot.send_message(chat, "Ingresa el nombre de la cuenta de Instagram que deseas seguir.")
+            instagramAccountBool = True
+        elif instagramAccountBool:
+            instagramAccount = text
             # Aqui se accede a Instagram, el nombre de la cuenta de usuario de Instagram es la variable instagramUser
+            bot.send_message(chat, "Revisando cuenta para estar al tanto de las últimas noticias")
+            scrap_instagram(instagramAccount)
+            bot.send_message(chat, "Actualización completa, ahora puedes activar notificaciones")
             # bot.send_message(chat, "Tu usuario de Instagram es: " + text)
-            instagramUserBool = False
+            instagramAccountBool = False
 
         elif text == "Saf":
             bot.send_message(chat, "Ingresa el email de tu cuenta de Saf.")

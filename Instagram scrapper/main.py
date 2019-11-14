@@ -51,12 +51,12 @@ def get_url_from_json(img_id, json_file):
 
 def get_post_content_from_json(img_id, json_file):
     data = read_json_file(json_file)["GraphImages"]
-    post_content = ""
+    post_caption = ""
     for img in data:
         if img_id in img["display_url"]:
-            post_content = img["edge_media_to_caption"]["edges"][0]["node"]["text"]
-            break
-    return post_content
+            for edge in img["edge_media_to_caption"]["edges"]:
+                post_caption += edge["node"]["text"]+" "
+    return post_caption
 
 
 def images_to_json(account_name):
