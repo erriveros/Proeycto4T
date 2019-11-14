@@ -160,7 +160,11 @@ while True:
             # Aqui se accede a Instagram, el nombre de la cuenta de usuario de Instagram es la variable instagramUser
             bot.send_message(chat, "Revisando cuenta para estar al tanto de las últimas noticias")
             scrap_instagram(instagramAccount)
-            bot.send_message(chat, "Actualización completa, ahora puedes activar notificaciones")
+            bot.send_message(chat, "Actualización completa")
+            jsoninput = open(instagramAccount + ".json","r")
+            dataInstagram_s = jsoninput.read()
+            dataInstagram = json.load(dataInstagram_s)
+            print(dataInstagram['GraphImages'])
             # bot.send_message(chat, "Tu usuario de Instagram es: " + text)
             instagramAccountBool = False
             loggedInstagram = True
