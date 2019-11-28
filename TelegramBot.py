@@ -7,11 +7,20 @@ import telepot
 import os
 import sys
 import scrapy
+from scrapy.settings import Settings
 from scrapy.crawler import CrawlerProcess
-from uandesScraper.uandesScraper.spiders import saf_spider
-
+from scrapy.utils.project import get_project_settings
+from uandesScraper.uandesScraper.spiders.saf_spider import SadSpider
+import sqlite3
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
+conn = sqlite3.connect("uandes.db")
+curr = conn.cursor()
+
+TOKEN = "802624766:AAGFeusIY0pHAjasyJiheR14QD6mjDsIclE"
+URL = "https://api.telegram.org/bot{}/".format(TOKEN)
+
+bot = telebot.TeleBot(TOKEN)
 
 class User:
     loggedInstagram = False
@@ -39,11 +48,33 @@ class User:
         self.id = id
 
 
-TOKEN = "802624766:AAGFeusIY0pHAjasyJiheR14QD6mjDsIclE"
-URL = "https://api.telegram.org/bot{}/".format(TOKEN)
+def insert_user_to_db(current_user):
+    sql = "SELECT * FROM users WHERE chat_id = {}".format(current_user.id)
+    curr.execute(sql)
+    # print(curr.fetchone())
 
-bot = telebot.TeleBot(TOKEN)
+    if curr.fetchone() is None:
+        sql = """INSERT INTO  users(chat_id, loggedInstagram, loggedSaf, loggedGmail,
+                                    current_screen, pos_instagram, saf_email, saf_password, gmail_email, gmail_password
+                                    ) VALUES (%s,%s,%s,%s ,%s,%s,%s,%s ,%s,%s)"""
+        data = (current_user.id, current_user.loggedInstagram, current_user.loggedSaf, current_user.loggedGmail,
+                current_user.current_screen, current_user.pos_instagram, current_user.saf_email, current_user.saf_password,
+                current_user.gmail_email, current_user.gmail_password)
+        curr.execute(sql, data)
+        conn.commit()
 
+
+def scrape_saf(username, password, user_id):
+    print('crawling saf...')
+    process = CrawlerProcess(get_project_settings())
+    process.settings.set('ITEM_PIPELINES', {'uandesScraper.uandesScraper.pipelines.UandesscraperPipeline': 300})
+
+    process.crawl(SadSpider, email=username, password=password, user=user_id)
+    process.start()
+    print('done!')
+
+
+scrape_saf("rjgonzalez@miuandes.cl", "qepdotto1", 1)
 
 def scrap_instagram(account_name):
     print("scraping instagram account...")
