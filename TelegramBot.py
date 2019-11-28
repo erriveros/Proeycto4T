@@ -32,8 +32,12 @@ class User:
     gmailUser = ""
     gmailPass = ""
 
+    instagramImages = []
+    pos_instagram: int = 0
+
     def __init__(self, id):
         self.id = id
+
 
 TOKEN = "802624766:AAGFeusIY0pHAjasyJiheR14QD6mjDsIclE"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
@@ -182,9 +186,10 @@ while True:
             users.append(U)
         print(text)
         print(update_info)
-        if text == "button":
-            send_inline(U.id)
-        elif text == "Instagram":
+        if text == "Volver al Menu":
+            U.current_screen = 'main'
+            U.current_screen = main_menu(U.id, U.loggedInstagram, U.loggedSaf, U.loggedGmail, U.current_screen)
+        elif text == "Instagram" and U.loggedInstagram is False:  # Logear Instagram
             U.current_screen = "instagram account"
             bot.send_message(U.id, "Ingresa el nombre de la cuenta de Instagram que deseas seguir.")
             U.instagramAccountBool = True
@@ -198,12 +203,25 @@ while True:
             jsoninput = open(U.instagramAccount + "_data.json", "r")
             dataInstagram_s = jsoninput.read()
             dataInstagram = json.loads(dataInstagram_s)
-            print(dataInstagram['media'])
+            U.instagramImages = dataInstagram['media']
+            temp = []
+            temp = U.instagramImages[:]
+            elementos_borrados = 0
+            for i in range(0, len(U.instagramImages)):
+                if U.instagramImages[i]['url'] == "":
+                    del(temp[i-elementos_borrados])
+                    elementos_borrados += 1
+                if U.instagramImages[i]['post_caption'] == "":
+                    del(temp[i-elementos_borrados])
+                    elementos_borrados += 1
+            U.instagramImages = temp[:]
+            print(U.instagramImages)
             # bot.send_message(chat, "Tu usuario de Instagram es: " + text)
             U.instagramAccountBool = False
             U.loggedInstagram = True
+            send_reply_keyboard(U.id, ["Ver publicaciones"], "Selecciona una opcion")
 
-        elif text == "Saf":
+        elif text == "Saf" and U.loggedSaf is False:  # Logear Saf
             U.current_screen = "saf user"
             bot.send_message(U.id, "Ingresa el email de tu cuenta de Saf.")
             U.safUserBool = True
@@ -224,7 +242,7 @@ while True:
             U.safPassBool = False
             U.loggedSaf = True
 
-        elif text == "Gmail":
+        elif text == "Gmail" and U.loggedGmail is False:  # Logear Gmail
             U.current_screen = "gmail user"
             bot.send_message(U.id, "Ingresa el email de tu cuenta de Gmail.")
             U.gmailUserBool = True
@@ -241,18 +259,60 @@ while True:
             U.gmailUserBool = False
             U.gmailPassBool = False
             U.loggedGmail = True
+
         elif text == "Login":
             U.current_screen = "login"
             send_reply_keyboard(U.id, ["Instagram", "Saf", "Gmail"], "¿Qué servicio quieres iniciar sesion?")
+
+        elif text == "@Instagram" and U.loggedInstagram:
+            U.current_screen = "instagram options"
+            send_reply_keyboard(U.id, ["Ver publicaciones"], "Selecciona una opcion")
+
+        elif text == "Ver publicaciones" and U.loggedInstagram or U.current_screen == "watching instagram posts":
+            if text == "Siguiente":
+                U.pos_instagram += 1
+                U.current_screen = "watching instagram posts"
+                bot.send_message(U.id, U.pos_instagram)
+                if U.instagramImages[U.pos_instagram]['img_text_content'] != '':
+                    bot.send_message(U.id, U.instagramImages[U.pos_instagram]['img_text_content'])
+                bot.send_message(U.id, U.instagramImages[U.pos_instagram]['post_caption'])
+            elif text == "Anterior":
+                U.pos_instagram -= 1
+                U.current_screen = "watching instagram posts"
+                bot.send_message(U.id, U.pos_instagram)
+                if U.instagramImages[U.pos_instagram]['img_text_content'] != '':
+                    bot.send_message(U.id, U.instagramImages[U.pos_instagram]['img_text_content'])
+                bot.send_message(U.id, U.instagramImages[U.pos_instagram]['post_caption'])
+            elif text == "Fuente original":
+                bot.send_message(U.id, U.instagramImages[U.pos_instagram]['url'])
+            else:
+                U.current_screen = "watching instagram posts"
+                bot.send_message(U.id, U.pos_instagram)
+                if U.instagramImages[U.pos_instagram]['img_text_content'] != '':
+                    bot.send_message(U.id, U.instagramImages[U.pos_instagram]['img_text_content'])
+                bot.send_message(U.id, U.instagramImages[U.pos_instagram]['post_caption'])
+            if U.pos_instagram == 0 and text != "Fuente original":
+                send_inline(U.id, ["Fuente original", "Siguiente", "Volver al Menu"], "Opciones")
+            elif 0 < U.pos_instagram < len(U.instagramImages) - 1 and text != "Fuente original":
+                send_inline(U.id, ["Anterior", "Fuente original", "Siguiente", "Volver al Menu"], "Opciones")
+            elif U.pos_instagram == len(U.instagramImages) - 1 and text != "Fuente original":
+                send_inline(U.id, ["Anterior", "Fuente original", "Volver al Menu"], "Opciones")
+            elif U.pos_instagram == 0 and text == "Fuente original":
+                send_inline(U.id, ["Siguiente", "Volver al Menu"], "Opciones")
+            elif 0 < U.pos_instagram < len(U.instagramImages) - 1 and text == "Fuente original":
+                send_inline(U.id, ["Anterior", "Siguiente", "Volver al Menu"], "Opciones")
+            elif U.pos_instagram == len(U.instagramImages) - 1 and text == "Fuente original":
+                send_inline(U.id, ["Anterior", "Volver al Menu"], "Opciones")
         else:
             U.current_screen = "main"
 
             # send_message("MENSAGE HARCODIADO", chat)
         print(U.current_screen)
-        if U.current_screen == 'main' or text == "Volver a Menu":
+        if U.current_screen == 'main' and text != "Volver al Menu":
             U.current_screen = 'main'
             U.current_screen = main_menu(U.id, U.loggedInstagram, U.loggedSaf, U.loggedGmail, U.current_screen)
-        if U.current_screen == "instagram logged in" or U.current_screen == "saf logged in" or U.current_screen == "gmail logged in" or (U.current_screen == "login" and U.loggedGmail and U.loggedSaf and U.loggedInstagram):
-            send_inline(U.id, ["Volver a Menu"], "Para volver al menu")
+        if U.current_screen == "instagram logged in" or U.current_screen == "saf logged in" or U.current_screen == "gmail logged in" or (
+                U.current_screen == "login" and U.loggedGmail and U.loggedSaf and U.loggedInstagram):
+            send_inline(U.id, ["Volver al Menu"], "Para volver al menu")
 
     time.sleep(0.5)
