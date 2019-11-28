@@ -5,6 +5,11 @@ import urllib
 import json
 import telepot
 import os
+import sys
+import scrapy
+from scrapy.crawler import CrawlerProcess
+from uandesScraper.uandesScraper.spiders import saf_spider
+
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
 

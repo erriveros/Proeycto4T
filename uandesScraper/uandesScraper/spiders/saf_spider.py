@@ -29,10 +29,9 @@ class SadSpider(scrapy.Spider):
             href = new.xpath("@href").extract()
             self.items['news'] = news
             self.items['href'] = href
-            self.items['scrape'] = 1
             yield self.items
-        # for i in self.baseHref:
-        #     yield response.follow(self.base + i, callback=self.scrape_news)
+        for i in self.baseHref:
+            yield response.follow(self.base + i, callback=self.scrape_news)
 
     def scrape_news(self, response):
         course = response.css('div.span12').css('a::text').extract()
@@ -69,4 +68,6 @@ class SadSpider(scrapy.Spider):
             self.items['course'] = course
             self.items['table'] = 'current_semester'
             yield self.items
+
+
 
