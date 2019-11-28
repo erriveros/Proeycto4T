@@ -11,12 +11,13 @@ class SadSpider(scrapy.Spider):
     # def __init__(self, email, password, user):
     #      self.email = email
     #      self.password = password
-    #      self.items['user'] = user
+    #      self.user = user
 
     def parse(self, response):
         self.email  = "rjgonzalez@miuandes.cl"
         self.password = "qepdotto1"
-        self.items['user'] = 1
+
+        self.user = 1
         return FormRequest.from_response(response, formdata={
             'email': self.email,
             'password': self.password
@@ -37,9 +38,12 @@ class SadSpider(scrapy.Spider):
             href = new.xpath("@href").extract()
             self.items['news'] = news
             self.items['href'] = href
-            yield self.items
+            self.items['user'] = self.user
+            #yield self.items
         # for i in self.baseHref:
-        #     yield response.follow(self.base + i, callback=self.scrape_news)
+            yield response.follow(self.base + href, callback=self.scrape_news)
+        print('wgaaaaaaaaaaaaaaaaaaaa')
+        yield response.follow('https://www.uandes.cl/noticias/', callback=self.scrape_uandes_news)
 
     def scrape_news(self, response):
         course = response.css('div.span12').css('a::text').extract()
@@ -54,6 +58,7 @@ class SadSpider(scrapy.Spider):
             self.items['newsContent'] = ' '.join(content)
             self.items['newsTitle'] = title
             self.items['table'] = 'unread'
+            self.items['user'] = self.user
 
             yield self.items
 
@@ -67,6 +72,8 @@ class SadSpider(scrapy.Spider):
             self.items['openActivityTitle'] = titles[i]
             self.items['openActivityDate'] = dates[i]
             self.items['table'] = 'open_activities'
+            self.items['user'] = self.user
+
             yield self.items
 
     def scrape_courses(self, response):
@@ -75,6 +82,19 @@ class SadSpider(scrapy.Spider):
         for course in courses:
             self.items['course'] = course
             self.items['table'] = 'current_semester'
+            self.items['user'] = self.user
+
+            yield self.items
+
+    def scrape_uandes_news(self, response):
+        news_box = response.css('.inner')
+        titles = response.css('.block-list-item-title::text').extract()
+        dates = response.css('.block-list-item-post-date::text').extract()
+        for i in range(len(titles)):
+            self.items['uandesNewsTitles'] = titles[i]
+            self.items['uandesNewsDates'] = dates[i]
+            self.items['table'] = 'uandes'
+
             yield self.items
 
 

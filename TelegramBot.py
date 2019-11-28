@@ -235,7 +235,6 @@ while True:
             dataInstagram_s = jsoninput.read()
             dataInstagram = json.loads(dataInstagram_s)
             U.instagramImages = dataInstagram['media']
-            temp = []
             temp = U.instagramImages[:]
             elementos_borrados = 0
             for i in range(0, len(U.instagramImages)):

@@ -21,7 +21,7 @@ class UandesscraperItem(scrapy.Item):
     openActivityTitle = scrapy.Field()
     openActivityDate = scrapy.Field()
     user = scrapy.Field()
-
-
+    uandesNewsTitles = scrapy.Field()
+    uandesNewsDates = scrapy.Field()
 
     pass

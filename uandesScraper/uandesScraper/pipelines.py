@@ -11,13 +11,19 @@ class UandesscraperPipeline(object):
 
     def __init__(self):
         self.create_connection()
-        # self.create_table()
+        self.create_table()
 
     def create_connection(self):
         self.conn = sqlite3.connect("uandes.db")
         self.curr = self.conn.cursor()
 
     def create_table(self):
+
+        self.curr.execute("""DROP TABLE IF EXISTS noticias_uandes""")
+        self.curr.execute("""create table noticias_uandes(
+                                    id integer primary key autoincrement,
+                                    title text,
+                                    date text)""")
 
         self.curr.execute("""DROP TABLE IF EXISTS new_saf_tb""")
         self.curr.execute("""create table new_saf_tb(
@@ -81,7 +87,7 @@ class UandesscraperPipeline(object):
                             date,
                             content,
                             title) values (?,?,?,?,?)""", (
-                    1,
+                    item['user'],
                     item['course'][0],
                     item['newsDate'][0],
                     item['newsContent'],
@@ -92,7 +98,7 @@ class UandesscraperPipeline(object):
                                             course,
                                             title,
                                             tipo) values (?,?,?,?)""", (
-                    1,
+                    item['user'],
                     item['course'][0],
                     item['newsTitle'][0],
                     "Noticias"
@@ -109,7 +115,7 @@ class UandesscraperPipeline(object):
                                     course,
                                     date,
                                     title) values (?,?,?,?)""", (
-                    1,
+                    item['user'],
                     item['course'],
                     item['openActivityTitle'],
                     item['openActivityDate']
@@ -120,7 +126,7 @@ class UandesscraperPipeline(object):
                                                             course,
                                                             title,
                                                             tipo) values (?,?,?,?)""", (
-                    1,
+                    item['user'],
                     item['course'],
                     item['openActivityTitle'],
                     "Actividad abierta"
@@ -131,8 +137,17 @@ class UandesscraperPipeline(object):
             self.curr.execute(sql, (item['course'],))
             if self.curr.fetchone() is None:
                 self.curr.execute("""insert into current_semester_saf_tb (user_id, course) values (?,?)""", (
-                    1,
+                    item['user'],
                     item['course'],
+                ))
+
+        elif item['table'] == 'uandes':
+            sql = "SELECT * FROM noticias_uandes WHERE title = (?)"
+            self.curr.execute(sql, (item['uandesNewsTitles'],))
+            if self.curr.fetchone() is None:
+                self.curr.execute("""insert into noticias_uandes (title, date) values (?,?)""", (
+                    item['uandesNewsTitles'],
+                    item['uandesNewsDates'],
                 ))
         self.conn.commit()
 

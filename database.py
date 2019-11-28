@@ -12,6 +12,12 @@ def create_table():
                         title text,
                         tipo text)""")
 
+    curr.execute("""DROP TABLE IF EXISTS noticias_uandes""")
+    curr.execute("""create table noticias_uandes(
+                            id integer primary key autoincrement,
+                            title text,
+                            date text)""")
+
 
     curr.execute("""DROP TABLE IF EXISTS unread_saf_tb""")
     curr.execute("""create table unread_saf_tb(
