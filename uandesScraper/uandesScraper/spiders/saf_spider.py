@@ -8,10 +8,18 @@ class SadSpider(scrapy.Spider):
     start_urls = ['https://saf.uandes.cl/ing/default/user/login?_next=/ing/default/index']
     items = UandesscraperItem()
 
+    # def __init__(self, email, password, user):
+    #      self.email = email
+    #      self.password = password
+    #      self.items['user'] = user
+
     def parse(self, response):
+        self.email  = "rjgonzalez@miuandes.cl"
+        self.password = "qepdotto1"
+        self.items['user'] = 1
         return FormRequest.from_response(response, formdata={
-            'email': 'rjgonzalez@miuandes.cl',
-            'password': 'qepdotto1'
+            'email': self.email,
+            'password': self.password
         }, callback=self.start_scraping)
 
     def start_scraping(self, response):
@@ -30,8 +38,8 @@ class SadSpider(scrapy.Spider):
             self.items['news'] = news
             self.items['href'] = href
             yield self.items
-        for i in self.baseHref:
-            yield response.follow(self.base + i, callback=self.scrape_news)
+        # for i in self.baseHref:
+        #     yield response.follow(self.base + i, callback=self.scrape_news)
 
     def scrape_news(self, response):
         course = response.css('div.span12').css('a::text').extract()

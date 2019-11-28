@@ -15,11 +15,12 @@ class UandesscraperItem(scrapy.Item):
     course = scrapy.Field()
     newsContent = scrapy.Field()
     courseName = scrapy.Field()
-    newsDate  =scrapy.Field()
+    newsDate = scrapy.Field()
     newsTitle = scrapy.Field()
     table = scrapy.Field()
     openActivityTitle = scrapy.Field()
     openActivityDate = scrapy.Field()
+    user = scrapy.Field()
 
 
 

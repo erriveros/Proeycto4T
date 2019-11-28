@@ -11,16 +11,26 @@ class UandesscraperPipeline(object):
 
     def __init__(self):
         self.create_connection()
-        self.create_table()
+        # self.create_table()
 
     def create_connection(self):
         self.conn = sqlite3.connect("uandes.db")
         self.curr = self.conn.cursor()
 
     def create_table(self):
+
+        self.curr.execute("""DROP TABLE IF EXISTS new_saf_tb""")
+        self.curr.execute("""create table new_saf_tb(
+                                id integer primary key autoincrement,
+                                user_id integer,
+                                course text,
+                                title text,
+                                tipo text)""")
+
         self.curr.execute("""DROP TABLE IF EXISTS unread_saf_tb""")
         self.curr.execute("""create table unread_saf_tb(
                         id integer primary key autoincrement,
+                        user_id integer,
                         course text,
                         date text,
                         content text,
@@ -29,6 +39,7 @@ class UandesscraperPipeline(object):
         self.curr.execute("""DROP TABLE IF EXISTS open_activities_saf_tb""")
         self.curr.execute("""create table open_activities_saf_tb(
                                 id integer primary key autoincrement,
+                                user_id integer,
                                 course text,
                                 date text,
                                 title text)""")
@@ -36,6 +47,7 @@ class UandesscraperPipeline(object):
         self.curr.execute("""DROP TABLE IF EXISTS current_semester_saf_tb""")
         self.curr.execute("""create table current_semester_saf_tb(
                                         id integer primary key autoincrement,
+                                        user_id integer,
                                         course text)""")
 
         self.curr.execute("""DROP TABLE IF EXISTS users""")
@@ -57,30 +69,72 @@ class UandesscraperPipeline(object):
 
     def store_db(self, item):
         if item['table'] == 'unread':
-            self.curr.execute("""insert into unread_saf_tb (
-                        course,
-                        date,
-                        content,
-                        title) values (?,?,?,?)""", (
-                item['course'][0],
-                item['newsDate'][0],
-                item['newsContent'],
-                item['newsTitle'][0]
-            ))
+            print(item['newContent'])
+            sql = "SELECT * FROM unread_saf_tb WHERE content = (?)"
+            self.curr.execute(sql , (item['newsContent'],))
+            # print(curr.fetchone())
+
+            if self.curr.fetchone() is None:
+                self.curr.execute("""insert into unread_saf_tb (
+                            user_id,
+                            course,
+                            date,
+                            content,
+                            title) values (?,?,?,?,?)""", (
+                    1,
+                    item['course'][0],
+                    item['newsDate'][0],
+                    item['newsContent'],
+                    item['newsTitle'][0]
+                ))
+                self.curr.execute("""insert into new_saf_tb (
+                                            user_id,
+                                            course,
+                                            title,
+                                            tipo) values (?,?,?,?)""", (
+                    1,
+                    item['course'][0],
+                    item['newsTitle'][0],
+                    "Noticias"
+                ))
+
 
         elif item['table'] == 'open_activities':
-            self.curr.execute("""insert into open_activities_saf_tb (
-                                course,
-                                date,
-                                title) values (?,?,?)""", (
-                item['course'],
-                item['openActivityTitle'],
-                item['openActivityDate']
-            ))
+            print(item['openActivityTitle'])
+            sql = "SELECT * FROM open_activities_saf_tb WHERE title = (?)"
+            self.curr.execute(sql, (item['openActivityTitle'],))
+            if self.curr.fetchone() is None:
+                self.curr.execute("""insert into open_activities_saf_tb (
+                                    user_id,
+                                    course,
+                                    date,
+                                    title) values (?,?,?,?)""", (
+                    1,
+                    item['course'],
+                    item['openActivityTitle'],
+                    item['openActivityDate']
+                ))
+
+                self.curr.execute("""insert into new_saf_tb (
+                                                            user_id,
+                                                            course,
+                                                            title,
+                                                            tipo) values (?,?,?,?)""", (
+                    1,
+                    item['course'],
+                    item['openActivityTitle'],
+                    "Actividad abierta"
+                ))
 
         elif item['table'] == 'current_semester':
-            self.curr.execute("""insert into current_semester_saf_tb (course) values (?)""", (
-                item['course'],
-            ))
+            sql = "SELECT * FROM main.current_semester_saf_tb WHERE course = (?)"
+            self.curr.execute(sql, (item['course'],))
+            if self.curr.fetchone() is None:
+                self.curr.execute("""insert into current_semester_saf_tb (user_id, course) values (?,?)""", (
+                    1,
+                    item['course'],
+                ))
         self.conn.commit()
+
+
 
