@@ -259,7 +259,7 @@ while True:
             U.current_screen = "login"
             send_reply_keyboard(U.id, ["Instagram", "Saf", "Gmail"], "¿Qué servicio quieres iniciar sesion?")
 
-        elif text == "Instagram" and U.loggedInstagram:
+        elif text == "@Instagram" and U.loggedInstagram:
             U.current_screen = "instagram options"
             send_reply_keyboard(U.id, ["Ver publicaciones"], "Selecciona una opcion")
 
